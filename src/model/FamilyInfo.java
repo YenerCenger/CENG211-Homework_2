@@ -1,4 +1,4 @@
-package FamilyInfo.java;
+package model;
 
 public class FamilyInfo {
     private double familyIncome;

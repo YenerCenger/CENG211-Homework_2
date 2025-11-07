@@ -1,4 +1,4 @@
-package Document.java;
+package model;
 
 public class Document {
     private String documentType; // ENR, REC, SAV, RSV, GRP

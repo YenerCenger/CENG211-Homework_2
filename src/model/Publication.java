@@ -1,4 +1,4 @@
-package Publication.java;
+package model;
 
 public class Publication {
     private String title;

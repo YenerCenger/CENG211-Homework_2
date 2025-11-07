@@ -1,4 +1,4 @@
-package MeritBasedApplication.java;
+package model;
 
 // Developed by Ebu
 public class MeritBasedApplication {

@@ -1,4 +1,4 @@
-package ResearchGrantApplication.java;
+package model;
 
 // Developed by Ebu
 public class ResearchGrantApplication {
