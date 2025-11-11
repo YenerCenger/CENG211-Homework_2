@@ -20,14 +20,14 @@ public abstract class Application {
             reason = "Missing Enrollment Certificate";
             return false;
         }
+        if (!transcriptValid) {
+            status = "Rejected";
+            reason = "Missing Transcript";
+            return false;
+        }
         if (GPA < 2.5) {
             status = "Rejected";
             reason = "GPA is below 2.5";
-            return false;
-        }
-        if (!transcriptValid) {
-            status = "Rejected";
-            reason = "Transcript is not valid";
             return false;
         }
         return true;
