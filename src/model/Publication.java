@@ -1,12 +1,22 @@
-package Publication.java;
+package model;
+
+import java.util.ArrayList;
 
 public class Publication {
-    private String title;
-    private double impactFactor;
+    private final String title;
+    private final double impactFactor;
 
-    public Publication(double impactFactor, String title) {
+    public Publication(String title, double impactFactor) {
+        // Input validation
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null or empty");
+        }
+        if (impactFactor < 0) {
+            throw new IllegalArgumentException("Impact factor cannot be negative");
+        }
+
+        this.title = title.trim();
         this.impactFactor = impactFactor;
-        this.title = title;
     }
 
     // Getters
@@ -18,19 +28,21 @@ public class Publication {
         return title;
     }
 
-    // Setters
-    public void setImpactFactor(double impactFactor) {
-        this.impactFactor = impactFactor;
+    // Average impact factor hesaplama (static utility method)
+    public static double calculateAverageImpact(ArrayList<Publication> publications) {
+        if (publications == null || publications.isEmpty()) {
+            return 0.0;
+        }
+
+        double total = 0.0;
+        for (Publication pub : publications) {
+            total += pub.getImpactFactor();
+        }
+        return total / publications.size();
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    // String representation for easy debugging
     @Override
     public String toString() {
-        return "Publication: " + title +
-                ", Impact Factor: " + impactFactor;
+        return String.format("Publication: %s, Impact Factor: %.2f", title, impactFactor);
     }
 }
