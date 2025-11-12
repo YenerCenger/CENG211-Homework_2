@@ -13,6 +13,44 @@ public abstract class Application {
     protected String type;
     protected int duration;
 
+    // Getter methods for accessing application details from other packages
+    public String getApplicantID() {
+        return ApplicantID;
+    }
+
+    public String getApplicantName() {
+        return ApplicantName;
+    }
+
+    public double getGPA() {
+        return GPA;
+    }
+
+    public boolean isTranscriptValid() {
+        return transcriptValid;
+    }
+
+    public ArrayList<Document> getDocuments() {
+        return new ArrayList<>(documents);
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+
     // Genel kontroller - tüm başvurular için ortak
     public boolean generalChecks() {
         if (!hasDocuments("ENR")) {
