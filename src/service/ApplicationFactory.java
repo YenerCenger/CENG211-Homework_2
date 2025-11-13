@@ -32,12 +32,18 @@ public class ApplicationFactory {
         return applications;
     }
 
-    // Sonuçları ID'ye göre sırala (null-safe)
+    // Sonuçları ID'ye göre sırala (numeric sort - PDF requirement)
     public static List<Application> sortByID(List<Application> applications) {
         List<Application> sorted = new ArrayList<>(applications);
         sorted.sort(Comparator.comparing(
-                Application::getApplicantID,
-                Comparator.nullsLast(String::compareTo)));
+                app -> {
+                    try {
+                        return Long.parseLong(app.getApplicantID());
+                    } catch (NumberFormatException e) {
+                        return 0L;
+                    }
+                }
+        ));
         return sorted;
     }
 

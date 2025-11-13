@@ -24,6 +24,13 @@ public class NeedBasedApplication extends Application {
             return;
         }
 
+        // FamilyInfo yoksa reject (PDF: Missing mandatory information)
+        if (familyInfo == null) {
+            status = "Rejected";
+            reason = "Missing mandatory document";
+            return;
+        }
+
         // İki ayrı eşik: Full için 10,000 ve Half için 15,000
         double fullThreshold = 10000.0;
         double halfThreshold = 15000.0;
@@ -60,7 +67,7 @@ public class NeedBasedApplication extends Application {
             return;
         }
 
-        // Duration: PDF'e göre sabit 1 yıl
-        duration = 1;
+        // Duration: PDF'e göre sabit 1 yıl (12 ay)
+        durationInMonths = 12;
     }
 }

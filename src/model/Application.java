@@ -11,7 +11,7 @@ public abstract class Application {
     protected String status;
     protected String reason;
     protected String scholarshipType;
-    protected int duration;
+    protected int durationInMonths; // Ay cinsinden (6 ay, 12 ay, 24 ay, 18 ay için)
 
     // Constructor
     public Application(String applicantID, String applicantName, double GPA,
@@ -24,24 +24,25 @@ public abstract class Application {
         this.status = "Pending";
         this.reason = "";
         this.scholarshipType = "";
-        this.duration = 0;
+        this.durationInMonths = 0;
     }
 
     // Genel kontroller - tüm başvurular için ortak
+    // PDF'teki öncelik sırasına göre: ENR -> Transcript -> GPA
     protected boolean generalChecks() {
-        if (!transcriptValid) {
-            status = "Rejected";
-            reason = "Transcript is not valid";
-            return false;
-        }
         if (!hasDocument("ENR")) {
             status = "Rejected";
             reason = "Missing Enrollment Certificate";
             return false;
         }
+        if (!transcriptValid) {
+            status = "Rejected";
+            reason = "Missing Transcript"; // PDF'deki exact string
+            return false;
+        }
         if (GPA < 2.5) {
             status = "Rejected";
-            reason = "GPA is below 2.5";
+            reason = "GPA below 2.5"; // PDF'deki exact string
             return false;
         }
         return true;
@@ -84,7 +85,7 @@ public abstract class Application {
     }
 
     public int getDuration() {
-        return duration;
+        return durationInMonths;
     }
 
     // toString için scholarship type adını döndür
@@ -102,12 +103,26 @@ public abstract class Application {
             sb.append(", Type: ").append(scholarshipType);
             sb.append(", Duration: ");
 
-            if (duration == 0) {
+            // Duration ay cinsinden tutulduğu için yıl/ay'a çevir
+            if (durationInMonths == 6) {
                 sb.append("6 months");
-            } else if (duration == 1) {
+            } else if (durationInMonths == 12) {
                 sb.append("1 year");
+            } else if (durationInMonths == 18) {
+                sb.append("1.5 years");
+            } else if (durationInMonths == 24) {
+                sb.append("2 years");
+            } else if (durationInMonths % 12 == 0) {
+                sb.append(durationInMonths / 12).append(" years");
             } else {
-                sb.append(duration).append(" years");
+                // Karışık durumlar için
+                int years = durationInMonths / 12;
+                int months = durationInMonths % 12;
+                if (years > 0) {
+                    sb.append(years).append(".").append((months * 10) / 12).append(" years");
+                } else {
+                    sb.append(months).append(" months");
+                }
             }
         } else if ("Rejected".equalsIgnoreCase(status)) {
             sb.append(", Reason: ").append(reason);

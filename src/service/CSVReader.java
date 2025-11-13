@@ -13,43 +13,57 @@ public class CSVReader {
     }
 
     public Map<String, Applicant> readCSV(String filePath) throws IOException {
-        // Try-with-resources ile otomatik kaynak yönetimi + UTF-8 encoding
+        // İki geçişli okuma: Önce A satırları, sonra diğerleri
+        // Çünkü CSV rastgele sıralanmış olabilir (T/D/P satırı A'dan önce gelebilir)
+
+        List<String> allLines = new ArrayList<>();
+
+        // Tüm satırları oku
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))) {
-
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty()) {
-                    continue;
+                if (!line.isEmpty()) {
+                    allLines.add(line);
                 }
+            }
+        }
 
-                String[] parts = line.split(",");
-                if (parts.length == 0) {
-                    continue;
-                }
+        // PASS 1: Sadece Applicant (A) satırlarını işle
+        for (String line : allLines) {
+            String[] parts = line.split(",");
+            if (parts.length > 0 && parts[0].trim().equals("A")) {
+                processApplicant(parts);
+            }
+        }
 
-                String recordType = parts[0].trim();
+        // PASS 2: Diğer tüm satırları işle (T, D, I, P)
+        for (String line : allLines) {
+            String[] parts = line.split(",");
+            if (parts.length == 0) {
+                continue;
+            }
 
-                switch (recordType) {
-                    case "A": // Applicant
-                        processApplicant(parts);
-                        break;
-                    case "D": // Document
-                        processDocument(parts);
-                        break;
-                    case "T": // Transcript
-                        processTranscript(parts);
-                        break;
-                    case "I": // Family Info
-                        processFamilyInfo(parts);
-                        break;
-                    case "P": // Publication
-                        processPublication(parts);
-                        break;
-                    default:
-                        System.err.println("⚠ Unknown record type: " + recordType);
-                }
+            String recordType = parts[0].trim();
+
+            switch (recordType) {
+                case "D": // Document
+                    processDocument(parts);
+                    break;
+                case "T": // Transcript
+                    processTranscript(parts);
+                    break;
+                case "I": // Family Info
+                    processFamilyInfo(parts);
+                    break;
+                case "P": // Publication
+                    processPublication(parts);
+                    break;
+                case "A": // Already processed in Pass 1
+                    break;
+                default:
+                    System.err.println("⚠ Unknown record type: " + recordType);
             }
         }
 
@@ -58,6 +72,8 @@ public class CSVReader {
 
     private void processApplicant(String[] parts) {
         // A,ID,Name,GPA,Income (PDF format)
+        // NOT: A satırındaki income Need-Based için KULLANILMAZ
+        // Sadece I satırındaki familyIncome kullanılır
         if (parts.length < 4) {
             System.err.println("⚠ Invalid Applicant record: insufficient columns");
             return;
@@ -70,14 +86,8 @@ public class CSVReader {
 
             Applicant applicant = new Applicant(id, name, gpa);
 
-            // Income alanı varsa (parts[4]), default FamilyInfo oluştur
-            if (parts.length > 4) {
-                double income = Double.parseDouble(parts[4].trim());
-                if (income > 0) {
-                    // Default dependents = 0 (I satırı varsa override edilecek)
-                    applicant.setFamilyInfo(new FamilyInfo(income, 0));
-                }
-            }
+            // A satırındaki income'u IGNORE ET
+            // FamilyInfo sadece I satırından gelecek
 
             applicants.put(id, applicant);
         } catch (NumberFormatException e) {

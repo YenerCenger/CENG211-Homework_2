@@ -1,0 +1,167 @@
+Homework #2
+
+In this homework, you are expected to implement a “Scholarship Evaluation System” in Java. You should fulfill the concepts of:
+
+• Inheritance
+• Polymorphism
+• CSV File/IO
+• Array Lists
+
+Every year, a university’s scholarship committee receives hundreds of applications.
+Each application is unique: some students excel academically, some demonstrate significant financial need, and some contribute through research and publications.
+
+The committee has three main branches handling these cases:
+
+• One branch focuses on academic excellence and awards scholarships based on GPA and recommendations.
+• Another branch focuses on financial need, considering family income and dependents.
+• The final branch supports research activities, considering publications and supervisor approvals.
+
+Though the criteria differ, all branches follow a common evaluation framework — verifying documents, checking eligibility, and assigning the appropriate scholarship type and duration.
+Your program will act as this evaluation system, automatically reviewing all applicants.
+
+Hint:
+The evaluation system should be flexible enough to handle different types of applications in the future (e.g., scholarships today, exchange programs tomorrow).
+Therefore, you are encouraged to think of a general “Application” framework that scholarship applications can build upon.
+
+Input File
+
+A single CSV file, ScholarshipApplications.csv, contains all application information. Rows are mixed and not ordered by applicant.
+
+Use the Applicant ID to associate the different parts of an application.
+
+Each row starts with a prefix letter:
+
+Prefix	Meaning	Columns
+A	Applicant Info	A, applicantID, name, GPA, income
+T	Transcript	T, applicantID, transcriptStatus (Y/N)
+I	Family Info	I, applicantID, familyIncome, dependents
+D	Document	D, applicantID, documentType, durationInMonths
+P	Publication	P, applicantID, title, impactFactor
+
+Applicants are distinguished by their ID prefix:
+
+• 11 → Merit-based Scholarship
+• 22 → Need-based Scholarship
+• 33 → Research Grant
+
+Each applicant may have several associated documents and publications.
+
+Document Types
+Code	Description
+ENR	Enrollment Certificate (mandatory for all)
+REC	Recommendation Letter (academic merit)
+SAV	Savings Document (financial stability)
+RSV	Research Supervisor Approval (research grant)
+GRP	Grant Proposal (research grant)
+Evaluation Rules for Scholarship
+General Checks (for all applicants)
+
+The application must include an Enrollment Certificate (ENR).
+
+Transcript status must be Y (valid).
+
+GPA must be ≥ 2.50.
+
+Missing mandatory information leads to immediate rejection.
+
+Merit-Based Scholarship
+
+GPA ≥ 3.20 → Full Scholarship
+
+3.00 ≤ GPA < 3.20 → Half Scholarship
+
+GPA < 3.00 → Rejected
+
+If a Recommendation Letter (REC) is present, scholarship duration is 2 years; otherwise 1 year.
+
+This committee values academic excellence and recognizes recommendations from faculty as an indicator of consistent performance.
+
+Need-Based Scholarship
+
+Monthly income ≤ 10,000 → Full Scholarship
+
+10,000 < income ≤ 15,000 → Half Scholarship
+
+Income > 15,000 → Rejected
+
+If a Savings Document (SAV) exists, income thresholds increase by 20%.
+
+If the applicant has 3 or more dependents, thresholds increase by an additional 10%.
+
+Scholarship duration is 1 year.
+
+The financial committee prioritizes students who genuinely require financial support but can adapt its evaluation when families demonstrate limited savings or higher dependents.
+
+Research Grant
+
+At least one Publication (P) or Grant Proposal (GRP) is required.
+
+Average impact factor ≥ 1.50 → Full Scholarship
+
+1.00 ≤ avg impact < 1.50 → Half Scholarship
+
+avg impact < 1.00 → Rejected
+
+If a Research Supervisor Approval (RSV) exists, scholarship duration is extended by +1 year.
+
+Base duration: Full → 1 year, Half → 6 months.
+
+The research branch awards grants based on scientific contribution and supervisor validation. Outstanding research performance ensures longer support.
+
+Rejection Reasons (priority order)
+
+If multiple rejection reasons apply, only the first relevant one is printed:
+
+Missing Enrollment Certificate
+
+Missing Transcript
+
+GPA below 2.5
+
+Missing mandatory document
+
+Financial status unstable
+
+Missing publication or proposal
+
+Publication impact too low
+
+Expected Output Format
+
+Example layout:
+
+Applicant ID: 1101, Name: Liam Smith, Scholarship: Merit, Status: Accepted, Type: Full, Duration: 2 years
+
+Applicant ID: 1114, Name: Ava Johnson, Scholarship: Merit, Status: Accepted, Type: Half, Duration: 1 year
+
+Applicant ID: 1120, Name: Oliver Brown, Scholarship: Merit, Status: Rejected, Reason: GPA below 3.0
+
+Applications must be printed sorted by Applicant ID.
+
+Important Notes
+
+You can use standard java.io packages to read files. Do NOT use other 3rd party libraries.
+
+Use relative paths, otherwise grader prints nothing.
+
+For Turkish characters, set project encoding to UTF8.
+
+Write clean, readable, reusable code.
+
+Assignment Rules
+
+No cheating.
+
+Submit in groups.
+
+Export project correctly.
+
+Submit through Teams.
+
+Naming format must be:
+G05_CENG211_HW2
+and the ZIP folder must match exactly.
+
+Wrong naming = point loss.
+
+Submissions may be used in research; contact instructor if you don’t want that.

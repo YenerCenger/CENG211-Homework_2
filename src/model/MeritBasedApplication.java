@@ -39,11 +39,11 @@ public class MeritBasedApplication extends Application {
             return;
         }
 
-        // Duration: REC varsa 2 yıl, yoksa 1 yıl
+        // Duration: REC varsa 2 yıl (24 ay), yoksa 1 yıl (12 ay)
         if (hasDocument("REC")) {
-            duration = 2;
+            durationInMonths = 24;
         } else {
-            duration = 1;
+            durationInMonths = 12;
         }
     }
 }

@@ -93,11 +93,9 @@ public class Applicant {
                 return new MeritBasedApplication(applicantID, applicantName, GPA,
                         transcriptValid, documents);
             case "Need":
-                // FamilyInfo zorunlu kontrolü
-                if (familyInfo == null) {
-                    throw new IllegalStateException(
-                            "Missing FamilyInfo for Need-based applicant: " + applicantID);
-                }
+                // FamilyInfo yoksa yine de Application oluştur, evaluate() içinde reject edilecek
+                // PDF: "Missing mandatory information leads to immediate rejection"
+                // Exception atmak yerine rejection reason döndürmeliyiz
                 return new NeedBasedApplication(applicantID, applicantName, GPA,
                         transcriptValid, documents, familyInfo);
             case "Research":

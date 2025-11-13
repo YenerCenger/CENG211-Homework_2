@@ -27,46 +27,48 @@ public class ResearchGrantApplication extends Application {
         boolean hasPublication = (publications != null && !publications.isEmpty());
         boolean hasProposal = hasDocument("GRP");
 
-        // En az biri olmalı: Publication VEYA GRP
+        // 1) En az biri olmalı: Publication VEYA GRP (eligibility check)
         if (!hasPublication && !hasProposal) {
             status = "Rejected";
             reason = "Missing publication or grant proposal";
             return;
         }
 
-        // Ortalama Impact Factor hesaplama (publication varsa)
-        double avgImpact = 0.0;
+        // 2) Publication VARSA → Impact değerlendirmesi ZORUNLU
         if (hasPublication) {
             double totalImpact = 0.0;
             for (Publication pub : publications) {
                 totalImpact += pub.getImpactFactor();
             }
-            avgImpact = totalImpact / publications.size();
+            double avgImpact = totalImpact / publications.size();
+
+            if (avgImpact < 1.00) {
+                // Impact < 1.0 → REJECT (GRP olsa bile kurtarmaz!)
+                status = "Rejected";
+                reason = "Publication impact too low";
+                return;
+            } else if (avgImpact < 1.50) {
+                // 1.00 ≤ avg < 1.50 → Half
+                scholarshipType = "Half";
+                durationInMonths = 6;
+                status = "Accepted";
+            } else {
+                // avg ≥ 1.50 → Full
+                scholarshipType = "Full";
+                durationInMonths = 12;
+                status = "Accepted";
+            }
         }
-
-        // Scholarship türü ve base duration belirle
-        if (avgImpact >= 1.50) {
-            // avg ≥ 1.50 → Full Scholarship
-            scholarshipType = "Full";
-            duration = 1; // Base: 1 yıl
-            status = "Accepted";
-
-        } else if (avgImpact >= 1.00) {
-            // 1.00 ≤ avg < 1.50 → Half Scholarship
+        // 3) Publication YOK ama GRP VAR → Impact hesaplanmaz, Half ver
+        else {
             scholarshipType = "Half";
-            duration = 0; // Base: 6 ay (0.5 yıl olarak gösterilebilir)
+            durationInMonths = 6;
             status = "Accepted";
-
-        } else {
-            // avg < 1.00 → Rejected
-            status = "Rejected";
-            reason = "Publication impact too low";
-            return;
         }
 
-        // RSV varsa +1 yıl ekle
+        // 4) RSV varsa +1 yıl (12 ay) ekle
         if (hasDocument("RSV")) {
-            duration += 1;
+            durationInMonths += 12;
         }
     }
 }
