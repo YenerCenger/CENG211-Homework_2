@@ -1,12 +1,19 @@
 package model;
 
 public class Document {
-    private String documentType; // ENR, REC, SAV, RSV, GRP
-    private int durationInMonths; // PDF’teki "durationInMonths" kolonu
+    private final String documentType; // ENR, REC, SAV, RSV, GRP
+    private final int durationInMonths;
 
-    // Constructor
     public Document(String documentType, int durationInMonths) {
-        this.documentType = documentType;
+        // Input validation
+        if (documentType == null || documentType.trim().isEmpty()) {
+            throw new IllegalArgumentException("Document type cannot be null or empty");
+        }
+        if (durationInMonths < 0) {
+            throw new IllegalArgumentException("Duration cannot be negative");
+        }
+
+        this.documentType = documentType.trim();
         this.durationInMonths = durationInMonths;
     }
 
@@ -19,19 +26,8 @@ public class Document {
         return durationInMonths;
     }
 
-    // Setters
-    public void setType(String documentType) {
-        this.documentType = documentType;
-    }
-
-    public void setDurationInMonths(int durationInMonths) {
-        this.durationInMonths = durationInMonths;
-    }
-
-    // String representation for easy debugging
     @Override
     public String toString() {
-        return "Document Type: " + documentType +
-                ", Duration: " + durationInMonths + " months";
+        return String.format("Document Type: %s, Duration: %d months", documentType, durationInMonths);
     }
 }

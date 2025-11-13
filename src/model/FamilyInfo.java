@@ -1,10 +1,18 @@
 package model;
 
 public class FamilyInfo {
-    private double familyIncome;
-    private int dependents;
+    private final double familyIncome;
+    private final int dependents;
 
     public FamilyInfo(double familyIncome, int dependents) {
+        // Input validation
+        if (familyIncome < 0) {
+            throw new IllegalArgumentException("Family income cannot be negative.");
+        }
+        if (dependents < 0) {
+            throw new IllegalArgumentException("Dependents cannot be negative.");
+        }
+
         this.familyIncome = familyIncome;
         this.dependents = dependents;
     }
@@ -18,19 +26,8 @@ public class FamilyInfo {
         return dependents;
     }
 
-    // Setters
-    public void setFamilyIncome(double familyIncome) {
-        this.familyIncome = familyIncome;
-    }
-
-    public void setDependents(int dependents) {
-        this.dependents = dependents;
-    }
-
-    // String representation for easy debugging
     @Override
     public String toString() {
-        return "Family Income: " + familyIncome +
-                ", Dependents: " + dependents;
+        return String.format("Income: %.2f, Dependents: %d", familyIncome, dependents);
     }
 }

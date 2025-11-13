@@ -2,79 +2,71 @@ package model;
 
 import java.util.ArrayList;
 
-// Developed by Ebu
 public class ResearchGrantApplication extends Application {
-
     private final ArrayList<Publication> publications;
-    private final double averageImpact;
 
-    public ResearchGrantApplication(Applicant applicant) {
-        this.ApplicantID = String.valueOf(applicant.getApplicantID());
-        this.ApplicantName = applicant.getName();
-        this.GPA = applicant.getGpa();
-        this.transcriptValid = applicant.isTranscriptValid();
-        this.documents = new ArrayList<>(applicant.getDocuments());
-        this.publications = new ArrayList<>(applicant.getPublications());
-        this.averageImpact = calculateAverageImpact();
+    public ResearchGrantApplication(String applicantID, String applicantName, double GPA,
+            boolean transcriptValid, ArrayList<Document> documents,
+            ArrayList<Publication> publications) {
+        super(applicantID, applicantName, GPA, transcriptValid, documents);
+        this.publications = new ArrayList<>(publications);
+    }
+
+    @Override
+    public String getScholarshipName() {
+        return "Research";
     }
 
     @Override
     public void evaluate() {
+        // Genel kontroller (ENR, transcript, GPA≥2.5)
         if (!generalChecks()) {
             return;
         }
 
-        if (!hasResearchMaterial()) {
+        boolean hasPublication = (publications != null && !publications.isEmpty());
+        boolean hasProposal = hasDocument("GRP");
+
+        // En az biri olmalı: Publication VEYA GRP
+        if (!hasPublication && !hasProposal) {
             status = "Rejected";
-            reason = "Missing publication or proposal";
+            reason = "Missing publication or grant proposal";
             return;
         }
 
-        if (publications.isEmpty()) {
-            status = "Rejected";
-            reason = "Publication impact too low";
-            return;
+        // Ortalama Impact Factor hesaplama (publication varsa)
+        double avgImpact = 0.0;
+        if (hasPublication) {
+            double totalImpact = 0.0;
+            for (Publication pub : publications) {
+                totalImpact += pub.getImpactFactor();
+            }
+            avgImpact = totalImpact / publications.size();
         }
 
-        if (averageImpact >= 1.50) {
+        // Scholarship türü ve base duration belirle
+        if (avgImpact >= 1.50) {
+            // avg ≥ 1.50 → Full Scholarship
+            scholarshipType = "Full";
+            duration = 1; // Base: 1 yıl
             status = "Accepted";
-            type = "Full";
-        } else if (averageImpact >= 1.00) {
+
+        } else if (avgImpact >= 1.00) {
+            // 1.00 ≤ avg < 1.50 → Half Scholarship
+            scholarshipType = "Half";
+            duration = 0; // Base: 6 ay (0.5 yıl olarak gösterilebilir)
             status = "Accepted";
-            type = "Half";
+
         } else {
+            // avg < 1.00 → Rejected
             status = "Rejected";
             reason = "Publication impact too low";
             return;
         }
 
-        setBaseDuration();
-
-        if (hasDocuments("RSV")) {
-            duration += 12;
-        }
-    }
-
-    private double calculateAverageImpact() {
-        if (publications.isEmpty()) {
-            return 0.0;
-        }
-        double total = 0.0;
-        for (Publication publication : publications) {
-            total += publication.getImpactFactor();
-        }
-        return total / publications.size();
-    }
-
-    private boolean hasResearchMaterial() {
-        return !publications.isEmpty() || hasDocuments("GRP");
-    }
-
-    private void setBaseDuration() {
-        if ("Full".equals(type)) {
-            duration = 12;
-        } else if ("Half".equals(type)) {
-            duration = 6;
+        // RSV varsa +1 yıl ekle
+        if (hasDocument("RSV")) {
+            duration += 1;
         }
     }
 }

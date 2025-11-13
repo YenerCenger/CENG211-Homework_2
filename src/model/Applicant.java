@@ -3,41 +3,35 @@ package model;
 import java.util.ArrayList;
 
 public class Applicant {
-    private int applicantID;
-    private String name;
-    private double gpa;
-    private double income;
+    private final String applicantID;
+    private final String applicantName;
+    private final double GPA;
     private boolean transcriptValid;
-    private ArrayList<Document> documents;
+    private final ArrayList<Document> documents;
+    private final ArrayList<Publication> publications;
     private FamilyInfo familyInfo;
-    private ArrayList<Publication> publications;
 
-    public Applicant(int applicantID, String name, double gpa, double income) {
+    public Applicant(String applicantID, String applicantName, double GPA) {
         this.applicantID = applicantID;
-        this.name = name;
-        this.gpa = gpa;
-        this.income = income;
-        this.transcriptValid = false; // Varsayılan olarak false
+        this.applicantName = applicantName;
+        this.GPA = GPA;
+        this.transcriptValid = false;
         this.documents = new ArrayList<>();
         this.publications = new ArrayList<>();
         this.familyInfo = null;
     }
 
     // Getters
-    public int getApplicantID() {
+    public String getApplicantID() {
         return applicantID;
     }
 
-    public String getName() {
-        return name;
+    public String getApplicantName() {
+        return applicantName;
     }
 
-    public double getGpa() {
-        return gpa;
-    }
-
-    public double getIncome() {
-        return income;
+    public double getGPA() {
+        return GPA;
     }
 
     public boolean isTranscriptValid() {
@@ -48,23 +42,15 @@ public class Applicant {
         return documents;
     }
 
-    public FamilyInfo getFamilyInfo() {
-        return familyInfo;
-    }
-
     public ArrayList<Publication> getPublications() {
         return publications;
     }
 
-    // Setters
-    public void setGpa(double gpa) {
-        this.gpa = gpa;
+    public FamilyInfo getFamilyInfo() {
+        return familyInfo;
     }
 
-    public void setIncome(double income) {
-        this.income = income;
-    }
-
+    // Setters (sadece mutable alanlar için)
     public void setTranscriptValid(boolean transcriptValid) {
         this.transcriptValid = transcriptValid;
     }
@@ -73,29 +59,59 @@ public class Applicant {
         this.familyInfo = familyInfo;
     }
 
-    // Document eklemek için metod
+    // Document ekleme
     public void addDocument(Document document) {
-        if (document != null) {
-            this.documents.add(document);
-        }
+        this.documents.add(document);
     }
 
-    // Publication eklemek için metod
+    // Publication ekleme
     public void addPublication(Publication publication) {
-        if (publication != null) {
-            this.publications.add(publication);
+        this.publications.add(publication);
+    }
+
+    // ID'ye göre scholarship kategorisini belirle (Merit/Need/Research)
+    public String getScholarshipCategory() {
+        String prefix = applicantID.substring(0, 2);
+        switch (prefix) {
+            case "11":
+                return "Merit";
+            case "22":
+                return "Need";
+            case "33":
+                return "Research";
+            default:
+                return "Unknown";
         }
     }
 
-    // String representation for easy debugging
+    // Application nesnesi oluştur (Factory Pattern)
+    public Application createApplication() {
+        String category = getScholarshipCategory();
+
+        switch (category) {
+            case "Merit":
+                return new MeritBasedApplication(applicantID, applicantName, GPA,
+                        transcriptValid, documents);
+            case "Need":
+                // FamilyInfo zorunlu kontrolü
+                if (familyInfo == null) {
+                    throw new IllegalStateException(
+                            "Missing FamilyInfo for Need-based applicant: " + applicantID);
+                }
+                return new NeedBasedApplication(applicantID, applicantName, GPA,
+                        transcriptValid, documents, familyInfo);
+            case "Research":
+                return new ResearchGrantApplication(applicantID, applicantName, GPA,
+                        transcriptValid, documents, publications);
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid applicant ID prefix for ID: " + applicantID);
+        }
+    }
+
     @Override
     public String toString() {
-        return "Applicant ID: " + applicantID +
-                ", Name: " + name +
-                ", GPA: " + gpa +
-                ", Income: " + income +
-                ", Transcript Valid: " + transcriptValid +
-                ", Documents: " + documents.size() +
-                ", Publications: " + publications.size();
+        return String.format("Applicant ID: %s, Name: %s, GPA: %.2f, Category: %s",
+                applicantID, applicantName, GPA, getScholarshipCategory());
     }
 }

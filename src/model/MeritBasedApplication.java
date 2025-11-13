@@ -2,43 +2,48 @@ package model;
 
 import java.util.ArrayList;
 
-// Developed by Ebu
 public class MeritBasedApplication extends Application {
-    
-    public MeritBasedApplication(Applicant applicant) {
-        this.ApplicantID = String.valueOf(applicant.getApplicantID());
-        this.ApplicantName = applicant.getName();
-        this.GPA = applicant.getGpa();
-        this.transcriptValid = applicant.isTranscriptValid();
-        this.documents = new ArrayList<>(applicant.getDocuments());
+
+    public MeritBasedApplication(String applicantID, String applicantName, double GPA,
+            boolean transcriptValid, ArrayList<Document> documents) {
+        super(applicantID, applicantName, GPA, transcriptValid, documents);
     }
-    
+
+    @Override
+    public String getScholarshipName() {
+        return "Merit";
+    }
+
     @Override
     public void evaluate() {
-        if(!generalChecks()) {
-            return;
-        }
-        
-        if(GPA>=3.20) {
-            status = "Accepted"; 
-            type = "Full";
-        }
-        else if(GPA>=3.00) {
-            status = "Accepted"; 
-            type = "Half";
-        }
-        else {
-            status = "Rejected"; 
-            reason = "GPA is below 3.00";
+        // Önce genel kontrolleri yap (ENR, Transcript, GPA >= 2.5)
+        if (!generalChecks()) {
             return;
         }
 
-        if(hasDocuments("REC")) {
-            duration = 24;
+        // GPA'ya göre değerlendirme
+        if (GPA >= 3.20) {
+            // Full Scholarship
+            scholarshipType = "Full";
+            status = "Accepted";
+            
+        } else if (GPA >= 3.00) {
+            // Half Scholarship
+            scholarshipType = "Half";
+            status = "Accepted";
+            
         } else {
-            duration = 12;
+            // GPA < 3.0 - Rejected
+            status = "Rejected";
+            reason = "GPA below 3.0";
+            return;
         }
-        
-    }
 
+        // Duration: REC varsa 2 yıl, yoksa 1 yıl
+        if (hasDocument("REC")) {
+            duration = 2;
+        } else {
+            duration = 1;
+        }
+    }
 }

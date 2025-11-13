@@ -1,102 +1,86 @@
 package output;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import model.Applicant;
 import model.Application;
-import model.MeritBasedApplication;
-import model.NeedBasedApplication;
-import model.ResearchGrantApplication;
+import java.util.Comparator;
+import java.util.List;
 
 public class ResultPrinter {
 
-    public void printAll(Map<Integer, Applicant> applicants) {
-        if (applicants == null || applicants.isEmpty()) {
-            System.out.println("No applications to evaluate.");
-            return;
+    // Tüm sonuçları yazdır (ID sıralı garantili)
+    public static void printAllResults(List<Application> applications) {
+        System.out.println("\n===== ALL APPLICATIONS =====");
+        // Extra sorting guarantee for output consistency
+        applications.sort(Comparator.comparing(Application::getApplicantID));
+        for (Application app : applications) {
+            System.out.println(app);
         }
+    }
 
-        System.out.println("================ Scholarship Results ================");
-
-        List<Integer> sortedIds = new ArrayList<>(applicants.keySet());
-        Collections.sort(sortedIds);
-
-        for (Integer id : sortedIds) {
-            Applicant applicant = applicants.get(id);
-            Application application = buildApplication(applicant);
-            if (application == null) {
-                System.out.printf("Unknown scholarship category for applicant %d.%n%n", id);
-                continue;
+    // Sadece kabul edilenleri yazdır (case-insensitive)
+    public static void printAcceptedApplications(List<Application> applications) {
+        System.out.println("\n===== ACCEPTED APPLICATIONS =====");
+        int count = 0;
+        for (Application app : applications) {
+            if ("Accepted".equalsIgnoreCase(app.getStatus())) {
+                System.out.println(app);
+                count++;
             }
-
-            application.evaluate();
-            printApplication(application);
-            System.out.println("------------------------------------------------------");
-            System.out.println();
         }
+        System.out.println("Total Accepted: " + count);
     }
 
-    private Application buildApplication(Applicant applicant) {
-        if (applicant == null) {
-            return null;
+    // Sadece reddedilenleri yazdır (case-insensitive)
+    public static void printRejectedApplications(List<Application> applications) {
+        System.out.println("\n===== REJECTED APPLICATIONS =====");
+        int count = 0;
+        for (Application app : applications) {
+            if ("Rejected".equalsIgnoreCase(app.getStatus())) {
+                System.out.println(app);
+                count++;
+            }
         }
-
-        String id = String.valueOf(applicant.getApplicantID());
-        if (id.startsWith("11")) {
-            return new MeritBasedApplication(applicant);
-        }
-        if (id.startsWith("22")) {
-            return new NeedBasedApplication(applicant);
-        }
-        if (id.startsWith("33")) {
-            return new ResearchGrantApplication(applicant);
-        }
-        return null;
+        System.out.println("Total Rejected: " + count);
     }
 
-    private void printApplication(Application application) {
-        System.out.printf("Applicant ID   : %s%n", application.getApplicantID());
-        System.out.printf("Applicant Name : %s%n", application.getApplicantName());
-        System.out.printf("Scholarship    : %s%n", resolveScholarshipName(application));
-        String status = application.getStatus() != null ? application.getStatus() : "-";
-        System.out.printf("Status         : %s%n", status);
+    // İstatistikleri yazdır (bonus: acceptance rate)
+    public static void printStatistics(List<Application> applications) {
+        int totalAccepted = 0;
+        int totalRejected = 0;
+        int meritAccepted = 0;
+        int needAccepted = 0;
+        int researchAccepted = 0;
 
-        String awardType = application.getType() != null ? application.getType() : "-";
-        System.out.printf("Award Type     : %s%n", awardType);
+        for (Application app : applications) {
+            if ("Accepted".equalsIgnoreCase(app.getStatus())) {
+                totalAccepted++;
+                String scholarshipType = app.getScholarshipName();
+                switch (scholarshipType) {
+                    case "Merit":
+                        meritAccepted++;
+                        break;
+                    case "Need":
+                        needAccepted++;
+                        break;
+                    case "Research":
+                        researchAccepted++;
+                        break;
+                }
+            } else if ("Rejected".equalsIgnoreCase(app.getStatus())) {
+                totalRejected++;
+            }
+        }
 
-        String duration = formatDuration(application.getDuration());
-        System.out.printf("Duration       : %s%n", duration);
+        System.out.println("\n===== STATISTICS =====");
+        System.out.println("Total Applications: " + applications.size());
+        System.out.println("Total Accepted: " + totalAccepted);
+        System.out.println("  - Merit-Based: " + meritAccepted);
+        System.out.println("  - Need-Based: " + needAccepted);
+        System.out.println("  - Research Grant: " + researchAccepted);
+        System.out.println("Total Rejected: " + totalRejected);
 
-        String reason = application.getReason();
-        if ("Rejected".equalsIgnoreCase(status) && reason != null && !reason.isBlank()) {
-            System.out.printf("Reason         : %s%n", reason);
-        }
-    }
-
-    private String resolveScholarshipName(Application application) {
-        if (application instanceof MeritBasedApplication) {
-            return "Merit-Based Scholarship";
-        }
-        if (application instanceof NeedBasedApplication) {
-            return "Need-Based Scholarship";
-        }
-        if (application instanceof ResearchGrantApplication) {
-            return "Research Grant";
-        }
-        return "Unknown";
-    }
-
-    private String formatDuration(int durationInMonths) {
-        if (durationInMonths <= 0) {
-            return "-";
-        }
-        if (durationInMonths % 12 == 0) {
-            int years = durationInMonths / 12;
-            return years == 1 ? "1 year" : years + " years";
-        }
-        return durationInMonths + " months";
+        // Bonus: Acceptance rate
+        double acceptanceRate = applications.isEmpty() ? 0.0
+                : (totalAccepted * 100.0 / applications.size());
+        System.out.printf("Acceptance Rate: %.2f%%\n", acceptanceRate);
     }
 }

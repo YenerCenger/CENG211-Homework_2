@@ -1,35 +1,66 @@
 package app;
 
-import output.ResultPrinter;
-import service.ApplicationFactory;
+import model.*;
+import service.*;
+import output.*;
+import java.io.File;
+import java.util.*;
 
-/**
- * Entry point for the scholarship evaluation application.
- */
 public class Main {
 
     private static final String CSV_PATH = "Files/ScholarshipApplications.csv";
 
     public static void main(String[] args) {
-        ScholarshipEvaluationApp application = new ScholarshipEvaluationApp(
-                new ApplicationFactory(CSV_PATH),
-                new ResultPrinter()
-        );
-        application.run();
-    }
+        System.out.println("===================================");
+        System.out.println("Scholarship Evaluation System");
+        System.out.println("CENG211 HW2 - Fall 2025");
+        System.out.println("===================================");
 
-    private static final class ScholarshipEvaluationApp {
-        private final ApplicationFactory factory;
-        private final ResultPrinter printer;
+        try {
+            // UTF-8 encoding guarantee for all platforms
+            System.setProperty("file.encoding", "UTF-8");
 
-        private ScholarshipEvaluationApp(ApplicationFactory factory, ResultPrinter printer) {
-            this.factory = factory;
-            this.printer = printer;
-        }
+            // CSV dosyasını oku
+            String csvFilePath = "Files/ScholarshipApplications.csv";
 
-        private void run() {
-            factory.loadData();
-            printer.printAll(factory.getApplicants());
+            // Dosya varlık kontrolü
+            File file = new File(csvFilePath);
+            if (!file.exists()) {
+                System.err.println("Error: CSV file not found at: " + file.getAbsolutePath());
+                return;
+            }
+
+            CSVReader csvReader = new CSVReader();
+            System.out.println("\nReading CSV file: " + csvFilePath);
+            Map<String, Applicant> applicants = csvReader.readCSV(csvFilePath);
+            System.out.println("Total applicants read: " + applicants.size());
+
+            // Application nesnelerini oluştur ve değerlendir
+            System.out.println("\nEvaluating applications...");
+            List<Application> applications = ApplicationFactory.createAndEvaluateApplications(applicants);
+
+            // Null/empty kontrolü
+            if (applications == null || applications.isEmpty()) {
+                System.out.println("No applications to evaluate.");
+                return;
+            }
+
+            // Sonuçları ID'ye göre sırala
+            applications = ApplicationFactory.sortByID(applications);
+
+            // Sonuçları yazdır
+            ResultPrinter.printAllResults(applications);
+            ResultPrinter.printAcceptedApplications(applications);
+            ResultPrinter.printRejectedApplications(applications);
+            ResultPrinter.printStatistics(applications);
+
+            System.out.println("\n===================================");
+            System.out.println("Evaluation completed successfully!");
+            System.out.println("===================================");
+
+        } catch (Exception e) {
+            System.err.println("Error occurred: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
