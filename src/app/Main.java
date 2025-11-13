@@ -7,6 +7,9 @@ import java.io.File;
 import java.util.*;
 
 public class Main {
+
+    private static final String CSV_PATH = "Files/ScholarshipApplications.csv";
+
     public static void main(String[] args) {
         System.out.println("===================================");
         System.out.println("Scholarship Evaluation System");
