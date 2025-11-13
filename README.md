@@ -284,7 +284,6 @@ javac -encoding UTF-8 -d bin src/model/*.java src/service/*.java src/app/*.java 
 
 ## 👥 Katkıda Bulunanlar
 
-- **CSV & Veri Yönetimi Modülü**: Ceren
 - **Proje Geliştirme**: CENG211 Ekibi
 
 ## 📄 Lisans
