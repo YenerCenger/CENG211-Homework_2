@@ -6,8 +6,13 @@ import java.io.File;
 import java.util.*;
 
 public class EvaluationService {
-    
+
     public static void evaluateScholarships(String csvFilePath) {
+        System.out.println("===================================");
+        System.out.println("Scholarship Evaluation System");
+        System.out.println("CENG211 HW2 - Fall 2025");
+        System.out.println("===================================");
+
         try {
             // UTF-8 encoding guarantee for all platforms
             System.setProperty("file.encoding", "UTF-8");
@@ -54,4 +59,3 @@ public class EvaluationService {
         }
     }
 }
-
