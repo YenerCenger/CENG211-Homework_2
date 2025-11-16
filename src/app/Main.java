@@ -1,24 +1,15 @@
 package app;
 
-import model.*;
-import service.*;
-import output.*;
-import java.util.*;
+import service.EvaluationService;
 
 public class Main {
     public static void main(String[] args) {
-        try {
-            Map<String, Applicant> applicants = new CSVReader().readCSV("Files/ScholarshipApplications.csv");
-            List<Application> applications = ApplicationFactory.sortByID(
-                ApplicationFactory.createAndEvaluateApplications(applicants)
-            );
-            
-            ResultPrinter.printAllResults(applications);
-            ResultPrinter.printAcceptedApplications(applications);
-            ResultPrinter.printRejectedApplications(applications);
-            ResultPrinter.printStatistics(applications);
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-        }
+        System.out.println("===================================");
+        System.out.println("Scholarship Evaluation System");
+        System.out.println("CENG211 HW2 - Fall 2025");
+        System.out.println("===================================");
+
+        String csvFilePath = "Files/ScholarshipApplications.csv";
+        EvaluationService.evaluateScholarships(csvFilePath);
     }
 }
